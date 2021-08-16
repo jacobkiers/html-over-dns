@@ -1,0 +1,19 @@
+;
+$TTL 5m	; Default TTL
+@	IN	SOA	home.kie.rs.	postmaster.kie.rs. (
+	2021081611	; serial
+	1h		; slave refresh interval
+	15m		; slave retry interval
+	1w		; slave copy expire time
+	1h		; NXDOMAIN cache time
+	)
+
+$ORIGIN hod.experiments.jacobkiers.net.
+
+;
+; domain name servers
+;
+@	IN	NS	    home.kie.rs.
+
+
+;; START BLOG RECORDS

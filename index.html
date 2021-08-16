@@ -1,0 +1,140 @@
+<!DOCTYPE html charset="UTF-8">
+<html>
+
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.2.0/build/styles/default.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.2.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+class Content {
+    content = "";
+    type = "";
+    metaData = {}
+
+    constructor(content, type, metaData = {})
+    {
+        this.content = content;
+        this.type = type;
+        this.metaData = metaData;
+    }
+}
+
+class Index 
+{
+    mimeType = "";
+    chunks = 0;
+    hash = "";
+    metaData = {};
+
+    constructor(mimeType, chunks, hash, metaData = {})
+    {
+        this.mimeType = mimeType;
+        this.chunks = chunks;
+        this.hash = hash;
+        this.metaData = metaData
+    }
+}
+
+const dohServer = "https://cloudflare-dns.com/dns-query?ct=application/dns-json&type=TXT&name=";
+const baseDomain = "hod.experiments.jacobkiers.net";
+
+async function readUrl(domain) {
+    var index = await fetchIndex(`${dohServer}${domain}.${baseDomain}`);
+
+    var chunk_promises = [];
+    for(i = 0; i < index.chunks; i++)
+    {
+        chunk_promises[i] = fetchChunk(i, index.hash);
+    }
+
+    var chunks = await Promise.all(chunk_promises);
+    var content = chunks.reduce((built, current) => built += current);
+
+    return handleContent(new Content(atob(content), index.mimeType, index.metaData));
+}
+
+async function fetchChunk(id, hash)
+{
+    var domain = `${id}.${hash}.${baseDomain}`;
+    const json = await fetch(`${dohServer}${domain}`)
+        .then(response => response.json());
+
+    const data = json.Answer[0].data.slice(1, -1);
+
+    return data;
+}
+
+async function fetchIndex(domain)
+{
+    const response = await fetch(`${dohServer}.${domain}`);
+    const json = await response.json();
+    const index = json.Answer[0].data.slice(1, -1);
+    
+    let ret = {};
+    let items = index.split(';');
+    items.forEach(item => {
+        let md = item.split('=');
+        let key = md[0];
+        let value = md[1];
+
+        ret[key] = value;
+    });
+
+    const metadata = JSON.parse(atob(ret["m"]));
+    return new Index(ret["t"], ret["c"], ret["h"], metadata);
+}
+
+function handleContent(content)
+{
+    if (!content instanceof Content) {
+        console.log("Not valid content in handleContent.")
+        return;
+    }
+
+    switch(content.type)
+    {
+        case "text/javascript":
+            return handleJavascript(content);
+        
+        case "text/markdown":
+            return handleMarkdown(content);
+
+        default:
+            console.log(`handleContent() does not know how to parse ${content.type}`);
+            break;
+    }
+}
+
+function handleJavascript(content)
+{
+    console.log("Got some javascript!", content.content);
+}
+
+async function handleMarkdown(content)
+{
+    console.log("Got me some markdown!");
+    marked.setOptions({
+        highlight: function(code, lang) {
+            return hljs.highlight(lang, code).value;
+        },
+        // langPrefix: ''
+    });
+
+    if (content.metaData.title != undefined) document.title = content.metaData.title;
+    document.getElementById("post").innerHTML = marked(content.content);
+    let title = document.createElement("h1");
+    title.innerHTML = content.metaData.title;
+    document.getElementById("post").prepend(title)
+}
+</script>
+</head>
+<body>
+  <script>
+readUrl("posts-2015-01-24-multiple-return-values-with-mockery-md");
+
+  </script>
+  <div id="post"></div>
+</body>
+
+</html>
