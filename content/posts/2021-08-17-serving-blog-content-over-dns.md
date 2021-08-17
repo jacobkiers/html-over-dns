@@ -6,7 +6,7 @@ author = Jacob Kiers
 
 ## What's up?
 
-You might not be able to see it immediately, but the content of this page is verved over DNS.
+You might not be able to see it immediately, but the content of this page is served over DNS.
 
 This works because of [DNS over HTTPS] for which there is an [API from Cloudflare].
 
