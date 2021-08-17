@@ -1,0 +1,7 @@
+hod.experiments.jacobkiers.net.:53 {
+    log
+    auto hod.experiments.jacobkiers.net. {
+	directory /etc/coredns/zones/
+        reload 10s
+    }
+}
