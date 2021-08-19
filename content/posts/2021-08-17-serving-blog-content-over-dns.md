@@ -10,6 +10,8 @@ You might not be able to see it immediately, but the content of this page is ser
 
 This works because of [DNS over HTTPS] for which there is an [API from Cloudflare].
 
+Comments at [Hacker News, apparently][HN].
+
 ## How it works
 
 That API is used to load the contents of this page, essentially like this:
@@ -62,6 +64,20 @@ These records are base64 encoded content, so when concatenated and decoded, they
 
 Please see the [source code] for the details.
 
+## FAQ
+
+### Why, though?
+
+In short: just because I could. It was one of those ideas I was wondering idly about, and I decided to just try it.
+
+### Has it any practical use?
+
+It is not intended to have any. Since DNS records are fairly small, serving images or something would quickly start
+consuming 100s of requests per second. I wouldn't want to do that to Cloudflare 😉
+
+It would be an interesting experiment to see how feasible that is.
+
 [source code]: https://github.com/jacobkiers/html-over-dns "Yes, the title is a pun..."
 [DNS over HTTPS]: https://en.wikipedia.org/wiki/DNS_over_HTTPS
 [API from Cloudflare]: https://developers.cloudflare.com/1.1.1.1/dns-over-https/json-format
+[HN]: https://news.ycombinator.com/item?id=28218406
