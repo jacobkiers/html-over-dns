@@ -126,6 +126,7 @@ async function handleMarkdown(content)
     let title = document.createElement("h1");
     title.innerHTML = content.metaData.title;
     document.getElementById("post").prepend(title)
+    document.getElementById("nojs").style.visibility = "hidden";
 }
 </script>
 </head>
@@ -135,6 +136,10 @@ readUrl("posts-2021-08-17-serving-blog-content-over-dns-md");
 
   </script>
   <div id="post"></div>
+  <div id="nojs">
+      <h1>HTML over DNS</h1>
+      <p>The content of this page is fetched using DNS over HTTP. Since that requires Javascript, please enable that to see the content.</p>
+  </div>
 </body>
 
 </html>
