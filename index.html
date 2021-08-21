@@ -40,7 +40,7 @@ const dohServer = "https://cloudflare-dns.com/dns-query?ct=application/dns-json&
 const baseDomain = "hod.experiments.jacobkiers.net";
 
 async function readUrl(domain) {
-    var index = await fetchIndex(`${dohServer}${domain}.${baseDomain}`);
+    var index = await fetchIndex(`${domain}.${baseDomain}`);
 
     var chunk_promises = [];
     for(i = 0; i < index.chunks; i++)
@@ -48,28 +48,30 @@ async function readUrl(domain) {
         chunk_promises[i] = fetchChunk(i, index.hash);
     }
 
-    var chunks = await Promise.all(chunk_promises);
-    var content = chunks.reduce((built, current) => built += current);
+    const chunks = await Promise.all(chunk_promises);
+    const base64 = chunks.reduce((built, current) => built += current);
 
     return handleContent(new Content(atob(content), index.mimeType, index.metaData));
 }
 
 async function fetchChunk(id, hash)
 {
-    var domain = `${id}.${hash}.${baseDomain}`;
-    const json = await fetch(`${dohServer}${domain}`)
+    const domain = `${id}.${hash}.${baseDomain}`;
+    return await fetchData(domain);
+}
+
+async function fetchData(domain)
+{
+    const json =  await fetch(`${dohServer}${domain}`)
         .then(response => response.json());
-
-    const data = json.Answer[0].data.slice(1, -1);
-
+    const raw_data = json.Answer[0].data;
+    const data = raw_data.replaceAll(/[\s\"]/g, '');
     return data;
 }
 
 async function fetchIndex(domain)
 {
-    const response = await fetch(`${dohServer}.${domain}`);
-    const json = await response.json();
-    const index = json.Answer[0].data.slice(1, -1);
+    const index = await fetchData(domain);
     
     let ret = {};
     let items = index.split(';');
