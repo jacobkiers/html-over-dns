@@ -1,14 +1,13 @@
-;
-$TTL 5m	; Default TTL
-@	IN	SOA	experiments.jacobkiers.net.	postmaster.kie.rs. (
-	2021082004	; serial
-	1h		; slave refresh interval
-	15m		; slave retry interval
-	1w		; slave copy expire time
-	1h		; NXDOMAIN cache time
-	)
+$TTL	300	; Default TTL
 
-$ORIGIN hod.experiments.jacobkiers.net.
+$ORIGIN hod.experiments.jacobkiers.net.  ; The zone of this zone file
+@   IN  SOA experiments.jacobkiers.net.  postmaster.jacobkiers.net. (
+    2021082109   ; serial
+    3600 ; slave refresh interval
+    900   ; slave retry interval
+    604800  ; slave copy expire time
+    3600    ; NXDOMAIN cache time
+)
 
 ;
 ; domain name servers
