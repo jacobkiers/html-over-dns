@@ -73,7 +73,7 @@ In short: just because I could. It was one of those ideas I was wondering idly a
 ### Has it any practical use?
 
 It is not intended to have any. Since DNS records are fairly small, serving images or something would quickly start
-consuming 100s of requests per second. I wouldn't want to do that to Cloudflare 😉
+consuming 100s of requests per second. I wouldn't want to do that to Cloudflare.
 
 It would be an interesting experiment to see how feasible that is.
 

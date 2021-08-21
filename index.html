@@ -10,13 +10,20 @@
 class Content {
     content = "";
     type = "";
-    metaData = {}
+    metaData = {};
+    index;
 
-    constructor(content, type, metaData = {})
+    /***
+     * @param content string
+     * @param type string
+     * @param index Index
+     */
+    constructor(content, type, index)
     {
         this.content = content;
         this.type = type;
-        this.metaData = metaData;
+        this.index = index;
+        this.metaData = index.metaData;
     }
 }
 
@@ -24,13 +31,15 @@ class Index
 {
     mimeType = "";
     chunks = 0;
+    hashAlgorithm = "";
     hash = "";
     metaData = {};
 
-    constructor(mimeType, chunks, hash, metaData = {})
+    constructor(mimeType, chunks, hash, hashAlgorithm, metaData = {})
     {
         this.mimeType = mimeType;
         this.chunks = chunks;
+        this.hashAlgorithm = hashAlgorithm;
         this.hash = hash;
         this.metaData = metaData
     }
@@ -51,7 +60,8 @@ async function readUrl(domain) {
     const chunks = await Promise.all(chunk_promises);
     const base64 = chunks.reduce((built, current) => built += current);
 
-    return handleContent(new Content(atob(content), index.mimeType, index.metaData));
+    const content = atob(base64);
+    return handleContent(new Content(content, index.mimeType, index));
 }
 
 async function fetchChunk(id, hash)
@@ -84,7 +94,7 @@ async function fetchIndex(domain)
     });
 
     const metadata = JSON.parse(atob(ret["m"]));
-    return new Index(ret["t"], ret["c"], ret["h"], metadata);
+    return new Index(ret["t"], ret["c"], ret["h"], ret["ha"], metadata);
 }
 
 function handleContent(content)
@@ -110,7 +120,12 @@ function handleContent(content)
 
 function handleJavascript(content)
 {
-    console.log("Got some javascript!", content.content);
+    console.log("Got some javascript!");
+    const scripts = document.getElementById("scripts");
+    const new_script = document.createElement("script");
+    new_script.text = content.content;
+
+    scripts.appendChild(new_script);
 }
 
 async function handleMarkdown(content)
@@ -128,20 +143,28 @@ async function handleMarkdown(content)
     let title = document.createElement("h1");
     title.innerHTML = content.metaData.title;
     document.getElementById("post").prepend(title)
-    document.getElementById("nojs").style.visibility = "hidden";
+    document.getElementById("nojs").remove();
+
+    if (typeof Verifier !== "undefined") {
+        await (new Verifier()).verify(content);
+    }
 }
 </script>
 </head>
 <body>
-  <script>
-readUrl("posts-2021-08-17-serving-blog-content-over-dns-md");
-
-  </script>
-  <div id="post"></div>
+    <div id="post"></div>
+  <div id="verification"></div>
   <div id="nojs">
       <h1>HTML over DNS</h1>
       <p>The content of this page is fetched using DNS over HTTP. Since that requires Javascript, please enable that to see the content.</p>
   </div>
+    <div id="scripts">
+        <script>
+            readUrl("scripts-verifier-js").then(
+                () => readUrl("posts-2021-08-17-serving-blog-content-over-dns-md")
+            );
+        </script>
+    </div>
 </body>
 
 </html>
