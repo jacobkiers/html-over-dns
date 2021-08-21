@@ -22,7 +22,7 @@ fetch("https://cloudflare-dns.com/dns-query?ct=application/dns-json&type=TXT&nam
 
 The content itself is served over DNS, using CoreDNS, with these contents:
 
-```js
+```hcl
 hod.experiments.jacobkiers.net.:53 {
     log
     auto hod.experiments.jacobkiers.net. {
@@ -34,7 +34,7 @@ hod.experiments.jacobkiers.net.:53 {
 
 This feeds into a zone file, which looks like this:
 
-```js
+```dns
 $TTL 5m	; Default TTL
 @	IN	SOA	experiments.jacobkiers.net.	postmaster.jacobkiers.net. (
 	2021081612	; serial

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Blog over DNS</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.2.0/build/styles/default.min.css">
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.2.0/build/highlight.min.js"></script>
+<link rel="stylesheet" href="equilibrium-light.min.css">
+<script src="highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
 class Content {
@@ -27,7 +27,7 @@ class Content {
     }
 }
 
-class Index 
+class Index
 {
     mimeType = "";
     chunks = 0;
@@ -82,7 +82,7 @@ async function fetchData(domain)
 async function fetchIndex(domain)
 {
     const index = await fetchData(domain);
-    
+
     let ret = {};
     let items = index.split(';');
     items.forEach(item => {
@@ -108,7 +108,7 @@ function handleContent(content)
     {
         case "text/javascript":
             return handleJavascript(content);
-        
+
         case "text/markdown":
             return handleMarkdown(content);
 
@@ -133,12 +133,15 @@ async function handleMarkdown(content)
     console.log("Got me some markdown!");
     marked.setOptions({
         highlight: function(code, lang) {
-            return hljs.highlight(lang, code).value;
+            const avialable_languages = hljs.listLanguages();
+            const has_language = hljs.getLanguage(lang);
+            if (typeof has_language === "undefined") return code;
+            const result = hljs.highlight(code, { language: lang, ignoreIllegals: true});
+            return result.value;
         },
-        // langPrefix: ''
     });
 
-    if (content.metaData.title != undefined) document.title = content.metaData.title;
+    if (typeof content.metaData.title !== "undefined") document.title = content.metaData.title;
     document.getElementById("post").innerHTML = marked(content.content);
     let title = document.createElement("h1");
     title.innerHTML = content.metaData.title;
