@@ -72,7 +72,12 @@ async function fetchChunk(id, hash)
 
 async function fetchData(domain)
 {
-    const json =  await fetch(`${dohServer}${domain}`)
+    const json =  await fetch(`${dohServer}${domain}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/dns-json"
+            }
+        })
         .then(response => response.json());
     const raw_data = json.Answer[0].data;
     const data = raw_data.replaceAll(/[\s\"]/g, '');
@@ -142,7 +147,7 @@ async function handleMarkdown(content)
     });
 
     if (typeof content.metaData.title !== "undefined") document.title = content.metaData.title;
-    document.getElementById("post").innerHTML = marked(content.content);
+    document.getElementById("post").innerHTML = marked.parse(content.content);
     let title = document.createElement("h1");
     title.innerHTML = content.metaData.title;
     document.getElementById("post").prepend(title)
